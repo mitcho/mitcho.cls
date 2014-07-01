@@ -264,17 +264,24 @@
 				foot=0.4in]
 			{geometry}
 
-		% table of contents:
-		\RequirePackage{tocloft}
-		% based on http://tex.stackexchange.com/questions/129592/add-parts-to-the-table-of-contents
-		\makeatletter
-		\@addtoreset{section}{part}
-		\makeatother
-		\newlength\mylen
-		\renewcommand\thepart{\Roman{part}}
-		\renewcommand\cftpartpresnum{Part~}
-		\settowidth\mylen{\bfseries\cftpartpresnum\cftpartaftersnum}
-		\addtolength\cftpartnumwidth{\mylen}
+%		\RequirePackage{chngcntr}
+%		\AtBeginDocument{
+%			\counterwithin{exx}{chapter}
+%		}
+
+% no longer using \part:
+%
+%		% table of contents:
+%		\RequirePackage{tocloft}
+%		% based on http://tex.stackexchange.com/questions/129592/add-parts-to-the-table-of-contents
+%		\makeatletter
+%		\@addtoreset{section}{part}
+%		\makeatother
+%		\newlength\mylen
+%		\renewcommand\thepart{\Roman{part}}
+%		\renewcommand\cftpartpresnum{Part~}
+%		\settowidth\mylen{\bfseries\cftpartpresnum\cftpartaftersnum}
+%		\addtolength\cftpartnumwidth{\mylen}
 		
 		\setstretch{1.3}
 		\parindent=1em
@@ -307,9 +314,10 @@
 		\RequirePackage[bordercolor=gray,backgroundcolor=yellow,linecolor=gray]{todonotes}
 	}
 	\AtBeginDocument{
-		%\setmainfont[BoldFont={Palatino Bold},SmallCapsFont={Palatino},SmallCapsFeatures={Letters=SmallCaps,Scale=0.7,OpticalSize=0,FakeBold=0.1}]{Palatino}
 		\setmainfont[BoldFont={TeX Gyre Pagella Bold}]{TeX Gyre Pagella}
 		\setmathrm{TeX Gyre Pagella}
+%		\setmainfont{Minion Pro}
+%		\setmathfont{Minion Pro}
 	}
 }
 
@@ -393,9 +401,6 @@
 	}
 }
 \DeclareOption{abstract}{
-	\ifthenelse{\boolean{a4paper}}{
-		\PassOptionsToClass{a4paper}{article}
-	}
 	\PassOptionsToClass{12pt}{article}
 	\AtEndOfClass{
 		\ifthenelse{\boolean{a4paper}}{
@@ -416,7 +421,7 @@
 		%\renewcommand{\section}[1]{\parskip = 0.1in\\\textbf{#1}}
 		\bibliographystyle{linquiry2}
 		\def\glt{}
-		\newcommand\fakesc[1]{{\addfontfeature{Scale=0.8} \MakeUppercase{#1}}}
+		\newcommand\fakesc[1]{{\textsc{#1}}}
 	}
 	\AtBeginDocument{
 		\setmainfont[BoldFont={TeX Gyre Termes Bold}]{TeX Gyre Termes}
@@ -752,6 +757,8 @@
 % SOME TEXT FORMATTING STUFF
 %%%%%%%%%%
 
+\usepackage{fixltx2e}
+
 \usepackage{url}
 \usepackage{empheq}
 
@@ -784,7 +791,7 @@
 
 \RequirePackage{etoolbox}
 \AtEndPreamble{
-	\usepackage{fontspec}
+	\usepackage{mathspec}
 	\defaultfontfeatures{Mapping=tex-text}
 }
 
@@ -823,6 +830,7 @@
 		\usepackage[linktocpage=true,bookmarks=true,hyperfootnotes=true,hyperindex=true,colorlinks=false,pdfnewwindow=true,pdfauthor={},unicode=true]{hyperref} %Michael Yoshitaka Erlewine
 	}{
 		\usepackage[linktocpage=true,bookmarks=true,hyperfootnotes=true,hyperindex=true,colorlinks=true,pdfnewwindow=true,urlcolor=darkgray,linkcolor=darkgray,bookmarksopen=true,anchorcolor=darkgray,citecolor=darkgray,pdfauthor={},unicode=true]{hyperref} %Michael Yoshitaka Erlewine
+		
 	}
 }
 
@@ -880,10 +888,14 @@
 \newcommand{\Sem}[2][]{\ensuremath{\left\llbracket #2\right\rrbracket^{#1}}}
 %\newcommand{\sem}[2][M\!,g]{\mbox{ $[\![ #2 ]\!]^{#1}$}}
 
-%Define \Bracket{}, for Type Theory or algebraic ideals.
+% define \must and \might
+\def\must{\ensuremath{\Box}}
+\def\might{\ensuremath{\diamondsuit}}
+
+% define \Bracket{}, for Type Theory or algebraic ideals.
 \newcommand{\Bracket}[1]{\ensuremath{\langle #1\rangle}}
 
-%Define \xbar{}, a bar-level command
+% define \xbar{}, a bar-level command
 \newcommand{\xbar}[1]{\ensuremath{\overline{\mathrm{#1}}}}
 \newcommand{\xbarbar}[1]{\ensuremath{\overline{\overline{\mathrm{#1}}}}}
 
@@ -891,7 +903,7 @@
 % defines \hl{}, highlighting
 \RequirePackage{soul}
 \sethlcolor{hlyellow}
-%Define \strike{}, a strikeout command
+% define \strike{}, a strikeout command
 \newcommand{\strike}[1]{\sout{#1}}
 
 % defines changed environment
