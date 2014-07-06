@@ -955,7 +955,11 @@
 \newcommand{\twolinkarrow}[4][0]{\raisebox{#1in}[0pt]{$\uparrow$\hspace{-3pt}\rule[-3pt]{#2}{0.5pt}\hspace{-1pt}|\rule[-3pt]{#3}{0.5pt}\hspace{-1pt}|$_{#4}$}}
 \newcommand{\charset}{\mbox{char}}
 
-\newcommand{\ett}{\Bracket{\Bracket{e,t},t}}
+\newcommand{\vP}{\text{\textit{v}P}\xspace}
+\newcommand{\et}{\Bracket{e,t}}
+\newcommand{\eet}{\Bracket{e,\et}}
+\newcommand{\ett}{\Bracket{\et,t}}
+
 \newcommand{\gap}[1][0.2in]{\uline{\hspace*{#1}}}
 \newcommand{\tikzgap}[1]{\underline{\hspace{0.1in}\tikz[na]\node [coordinate] (#1) {};\hspace{0.1in}}\,}
 \newcommand{\tikzmark}[1]{\tikz[na]\node [coordinate] (#1) {};}
