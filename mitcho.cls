@@ -259,6 +259,7 @@
 				letterpaper,
 				left=1in,
 				right=1in,
+%				textwidth=400pt,
 				top=1.4in,
 				bottom=1in,
 				foot=0.4in]
@@ -827,9 +828,9 @@
 {
 }{
 	\ifthenelse{\boolean{diff}}{
-		\usepackage[linktocpage=true,bookmarks=true,hyperfootnotes=true,hyperindex=true,colorlinks=false,pdfnewwindow=true,pdfauthor={},unicode=true]{hyperref} %Michael Yoshitaka Erlewine
+		\usepackage[linktocpage=true,bookmarks=true,hyperfootnotes=true,hyperindex=true,colorlinks=false,pdfnewwindow=true,pdfauthor={},unicode=true,pdfencoding=auto]{hyperref} %Michael Yoshitaka Erlewine
 	}{
-		\usepackage[linktocpage=true,bookmarks=true,hyperfootnotes=true,hyperindex=true,colorlinks=true,pdfnewwindow=true,urlcolor=darkgray,linkcolor=darkgray,bookmarksopen=true,anchorcolor=darkgray,citecolor=darkgray,pdfauthor={},unicode=true]{hyperref} %Michael Yoshitaka Erlewine
+		\usepackage[linktocpage=true,bookmarks=true,hyperfootnotes=true,hyperindex=true,colorlinks=true,pdfnewwindow=true,urlcolor=darkgray,linkcolor=darkgray,bookmarksopen=true,anchorcolor=darkgray,citecolor=darkgray,pdfauthor={},unicode=true,pdfencoding=auto]{hyperref} %Michael Yoshitaka Erlewine
 		
 	}
 }
@@ -1012,6 +1013,13 @@
 
 \lefthyphenmin3
 
+% From classicthesis:
+% Disable single lines at the start of a paragraph (Schusterjungen)
+\clubpenalty = 10000
+% Disable single lines at the end of a paragraph (Hurenkinder)
+\widowpenalty = 10000 
+\displaywidowpenalty = 10000 % formulas
+
 %gb4e for numbered examples, loaded last due to _ and ^ overloading
 \ifthenelse{\boolean{enumitem-gb4e}}{
 	\RequirePackage{enumitem}
@@ -1029,3 +1037,15 @@
 		}		
 	}
 }
+
+% https://stackoverflow.com/questions/1670463/latex-change-margins-of-only-a-few-pages
+\newenvironment{changemargin}[2]{%
+\begin{list}{}{%
+\setlength{\topsep}{0pt}%
+\setlength{\leftmargin}{#1}%
+\setlength{\rightmargin}{#2}%
+\setlength{\listparindent}{\parindent}%
+\setlength{\itemindent}{\parindent}%
+\setlength{\parsep}{\parskip}%
+}%
+\item[]}{\end{list}}
