@@ -5,7 +5,13 @@
 %%%%%%%%%%
 
 \RequirePackage{ifthen}
+\RequirePackage{etoolbox} % for AtEndPreamble
+\RequirePackage{xstring} % for string comparison stuff
+\DeclareRobustCommand{\VAN}[1]{Van #1}
+% later: \DeclareRobustCommand{\VAN}[1]{van #1}
 
+\newboolean{times}
+\setboolean{times}{false}
 \newboolean{loadBeamer}
 \setboolean{loadBeamer}{false}
 \newboolean{a4paper}
@@ -21,6 +27,9 @@
 \newboolean{diff}
 \setboolean{diff}{false}
 
+\DeclareOption{times}{
+	\setboolean{times}{true}
+}
 \DeclareOption{a4paper}{
 	\setboolean{a4paper}{true}
 }
@@ -44,6 +53,20 @@
 \DeclareOption{expex}{
 	\setboolean{expex}{true}
 }
+\DeclareOption{hidebib}{
+	% based on https://tex.stackexchange.com/questions/31373/citations-with-no-bibliography-at-the-end
+	\newsavebox\nobib@tempbox
+	\AtBeginDocument{%
+    	\let\nobib@bibliography@orig\bibliography
+		\def\bibliography#1{%
+			\savebox\nobib@tempbox{%
+				\parbox{\linewidth}{%
+					\nobib@bibliography@orig{#1}%
+				}%
+			}%
+		}%
+	}
+}
 
 \AtBeginDocument{
 	\newcommand{\anon}[1]{{#1}}
@@ -64,7 +87,7 @@
 	\setboolean{diff}{true}
 	\AtBeginDocument{
 		\definecolor{diff}{rgb}{0.6,0,0}
-		\group{\newcommand{\diff}[1]{\textcolor{diff}{#1}}}
+		\renewcommand{\diff}[1]{\textcolor{diff}{#1}}
 	}
 }
 
@@ -77,21 +100,30 @@
 			% a4 = 210 x 297mm
 			% a4half ~ 8.6in x 12.16in
 			\RequirePackage[
-					papersize={8.8in,12.45in},
+					papersize={220mm,320mm},
 					twoside,
-					left=1.0in,
-					right=0.5in,
-					top=1.0in,
-					bottom=1.0in,
-					foot=0.4in]
+					left=0.7in,% was 1
+					right=0.5in,% was 0.5
+					top=0.8in,
+					bottom=1.1in,
+					foot=0.2in]% was 0.4
 				{geometry}
+%			\RequirePackage[
+%					papersize={8.8in,12.45in},
+%					twoside,
+%					left=1.0in,
+%					right=0.5in,
+%					top=1.0in,
+%					bottom=1.0in,
+%					foot=0.4in]
+%				{geometry}
 		}{
 			% letter = 216mm x 279mm
 			% letterhalf ~ 220mm x 340mm
 			\RequirePackage[
 					papersize={220mm,320mm},
 					twoside,
-					left=1.0in,
+					left=1in,
 					right=0.5in,
 					top=0.8in,
 					bottom=1.1in,
@@ -106,15 +138,53 @@
 		\newcommand\fakesc[1]{\textsc{#1}}
 	}
 	\AtBeginDocument{
-		%\setmainfont[BoldFont={Palatino Bold},SmallCapsFont={Palatino},SmallCapsFeatures={Letters=SmallCaps,Scale=0.7,OpticalSize=0,FakeBold=0.1}]{Palatino}
-		\setmainfont[BoldFont={TeX Gyre Pagella Bold}]{TeX Gyre Pagella}
-		\setmathrm{TeX Gyre Pagella}
-		%\setmathrm{Palatino}
-		%\setboldmathrm[BoldFont=Palatino Bold]{Palatino Bold}
-
 		\large
 	}
 }
+
+\DeclareOption{newhandout}{ % not working yet
+	\PassOptionsToClass{handout}{beamer}
+	\PassOptionsToClass{12pt}{article}
+	\AtEndOfClass{
+		\RequirePackage{multicol}
+		\ifthenelse{\boolean{a4paper}}{
+			% a4 = 210 x 297mm
+			% a4half ~ 8.6in x 12.16in
+			\RequirePackage[
+					mag=1414,
+					papersize={8.8in,12.45in},
+					twoside,
+					left=1.0in,
+					right=0.5in,
+					top=1.0in,
+					bottom=1.0in,
+					foot=0.4in]
+				{geometry}
+		}{
+			% letter = 216mm x 279mm
+			% letterhalf ~ 220mm x 340mm
+			\RequirePackage[
+					papersize={6in,9in},
+					twoside,
+					left=0.5in,
+					right=0.25in,
+					top=0in,
+					bottom=0.2in,
+					foot=0.2in]
+				{geometry}
+		}
+		\parskip = 0.1in
+		\parindent = 0.0in
+		\bibliographystyle{linquiry2}
+		\def\glt{\vskip.17\baselineskip}
+		%\newcommand\fakesc[1]{{\scshape \MakeUppercase{#1}}}
+		\newcommand\fakesc[1]{\textsc{#1}}
+	}
+	\AtBeginDocument{
+		\large
+	}
+}
+
 
 \DeclareOption{oldhandout}{ % made into oldhandout October 2012
 	\PassOptionsToClass{handout}{beamer}
@@ -154,12 +224,6 @@
 		\newcommand\fakesc[1]{\textsc{#1}}
 	}
 	\AtBeginDocument{
-		%\setmainfont[BoldFont={Palatino Bold},SmallCapsFont={Palatino},SmallCapsFeatures={Letters=SmallCaps,Scale=0.7,OpticalSize=0,FakeBold=0.1}]{Palatino}
-		\setmainfont[BoldFont={TeX Gyre Pagella Bold}]{TeX Gyre Pagella}
-		\setmathrm{TeX Gyre Pagella}
-		%\setmathrm{Palatino}
-		%\setboldmathrm[BoldFont=Palatino Bold]{Palatino Bold}
-
 		\large
 	}
 }
@@ -183,11 +247,6 @@
 		%\newcommand\fakesc[1]{{\scshape \MakeUppercase{#1}}}
 		\newcommand\fakesc[1]{\textsc{#1}}
 	}
-	\AtBeginDocument{
-		%\setmainfont[BoldFont={Palatino Bold},SmallCapsFont={Palatino},SmallCapsFeatures={Letters=SmallCaps,Scale=0.7,OpticalSize=0,FakeBold=0.1}]{Palatino}
-		\setmainfont[BoldFont={TeX Gyre Pagella Bold}]{TeX Gyre Pagella}
-		\setmathrm{TeX Gyre Pagella}
-	}
 }
 
 \DeclareOption{lisquib}{
@@ -201,12 +260,8 @@
 		\def\glt{\vskip.17\baselineskip}
 		%\newcommand\fakesc[1]{{\scshape \MakeUppercase{#1}}}
 		\newcommand\fakesc[1]{\textsc{#1}}
-	}
-	\AtBeginDocument{
-%		\setmainfont[BoldFont={TeX Gyre Pagella Bold}]{TeX Gyre Pagella}
-%		\setmathrm{TeX Gyre Pagella}
-		\setmainfont[BoldFont={TeX Gyre Termes Bold}]{TeX Gyre Termes}
-		\setmathrm{TeX Gyre Termes}
+
+		\setboolean{times}{true}
 	}
 }
 
@@ -220,6 +275,7 @@
 		\def\glt{\vskip.17\baselineskip}
 %		\newcommand\fakesc[1]{\scalebox{0.75}{\MakeUppercase{#1}}}
 		\RequirePackage{titlesec}
+		\setboolean{times}{true}
 	}
 	\AtBeginDocument{
 %		\renewcommand{\thesection}{\arabic{section}}
@@ -237,13 +293,7 @@
 		\titleformat*{\subsubsection}{\fontsize{12pt}{14pt}}
 		\titlespacing*{\section}{0pt}{14pt}{14pt}
 		\titlespacing*{\subsection}{0pt}{14pt}{14pt}
-		\titlespacing*{\subsubsection}{0pt}{14pt}{14pt}
-		
-%		\setmainfont[BoldFont={TeX Gyre Termes Bold}]{TeX Gyre Termes}
-%		\setmathrm{TeX Gyre Termes}
-		\setmainfont[BoldFont={TeX Gyre Pagella Bold}]{TeX Gyre Pagella}
-		\setmathrm{TeX Gyre Pagella}
-		
+		\titlespacing*{\subsubsection}{0pt}{14pt}{14pt}		
 		\fontsize{12pt}{14pt}
 	}
 }
@@ -314,14 +364,7 @@
 
 		\RequirePackage[bordercolor=gray,backgroundcolor=yellow,linecolor=gray]{todonotes}
 	}
-	\AtBeginDocument{
-		\setmainfont[BoldFont={TeX Gyre Pagella Bold}]{TeX Gyre Pagella}
-		\setmathrm{TeX Gyre Pagella}
-%		\setmainfont{Minion Pro}
-%		\setmathfont{Minion Pro}
-	}
 }
-
 
 \DeclareOption{cv}{
 	\PassOptionsToClass{11pt}{article}
@@ -336,43 +379,15 @@
 		\parskip = 0.2in
 		\parindent = 0.0in
 
-		%\newcommand\fakesc[1]{{\scshape \MakeUppercase{#1}}}
-		\newcommand\fakesc[1]{\textsc{#1}}
-		\renewcommand{\textsc}[1]{{#1}} % temporary lack of smallcaps
+%		\renewcommand{\textsc}[1]{{#1}} % temporary lack of smallcaps
 
-		\makeatletter
+%		\makeatletter
 		\renewcommand{\section}[1]{\vspace{\baselineskip}\hrule\vspace{-0.6\baselineskip}\par{\large{\textbf {#1}}}\par\vspace{-0.6\baselineskip}}
-		\makeatother
+%		\makeatother
 		
-		\makeatletter
+%		\makeatletter
 		\renewcommand{\subsection}[1]{{\textsc {#1}}\par\vspace{-0.6\baselineskip}}
-		\makeatother
-		
-		\newcommand{\entrylabel}[1]{\mbox{#1}\hfil}
-		\newenvironment{CV}
-			{
-			\begin{list}{}
-				{\renewcommand{\makelabel}{\entrylabel}
-				\setlength{\labelwidth}{87pt}
-				\setlength{\leftmargin}{94pt}
-			}}
-			{\end{list}
-		}
-		
-		\newenvironment{miniCV}
-			{
-			\begin{list}{}
-				{\renewcommand{\makelabel}{\entrylabel}
-				\setlength{\labelwidth}{30pt}
-				\setlength{\leftmargin}{37pt}
-			}}
-			{\end{list}
-		}
-	}
-	\AtBeginDocument{
-		%\setmainfont[BoldFont={Palatino Bold},SmallCapsFont={Palatino},SmallCapsFeatures={Letters=SmallCaps,Scale=0.7,OpticalSize=0,FakeBold=0.1}]{Palatino}
-		\setmainfont[BoldFont={TeX Gyre Pagella Bold}]{TeX Gyre Pagella}
-		\setmathrm{TeX Gyre Pagella}
+%		\makeatother
 	}
 }
 \DeclareOption{thesis}{
@@ -392,13 +407,6 @@
 		\def\glt{\vskip.17\baselineskip}
 		%\newcommand\fakesc[1]{{\scshape \MakeUppercase{#1}}}
 		\newcommand\fakesc[1]{\textsc{#1}}
-	}
-	\AtBeginDocument{
-		%\setmainfont[BoldFont={Palatino Bold},SmallCapsFont={Palatino},SmallCapsFeatures={Letters=SmallCaps,Scale=0.7,OpticalSize=0,FakeBold=0.1}]{Palatino}
-		\setmainfont[BoldFont={TeX Gyre Pagella Bold}]{TeX Gyre Pagella}
-		\setmathrm{TeX Gyre Pagella}
-		%\setmathrm{Palatino}
-		%\setboldmathrm[BoldFont=Palatino Bold]{Palatino Bold}
 	}
 }
 \DeclareOption{abstract}{
@@ -423,11 +431,9 @@
 		\bibliographystyle{linquiry2}
 		\def\glt{}
 		\newcommand\fakesc[1]{{\textsc{#1}}}
+		\setboolean{times}{true}
 	}
 	\AtBeginDocument{
-		\setmainfont[BoldFont={TeX Gyre Termes Bold}]{TeX Gyre Termes}
-		\setmathrm{TeX Gyre Termes}
-
 		\fontsize{12}{14}\selectfont
 	}
 }
@@ -445,26 +451,13 @@
 
 		\RequirePackage{multicol}
 
-%		\textwidth = 6.5 in
-%		\textheight = 9 in
-%		\oddsidemargin = 0.0 in
-%		\evensidemargin = 0.0 in
-%		\topmargin = 0.0 in
 		\headheight = 0.0 in
 		\headsep = 0.0 in
 		\parskip = 0.3in
 		\parindent = 0.0in
 
-%		\RequirePackage{euler}
-%		\setmathrm{Times New Roman}
-%		\setmathrm[{Scale=3.5}]{Euler}
-
-		\RequirePackage{unicode-math}
-		
-		\newfontfamily\ttfont[Scale=0.8]{Monaco}
 		\renewcommand{\texttt}[1]{{\ttfont #1}}
 		
-%		\newcommand{\resetfontscale}{\addfontfeature{Scale=3.5}}
 		\renewcommand{\tiny}{\fontsize{24}{30}\selectfont}
 		\renewcommand{\small}{\fontsize{32}{41}\selectfont}
 		\renewcommand{\normalsize}{\fontsize{36}{45}\selectfont}
@@ -475,18 +468,45 @@
 		
 		\renewcommand{\section}[1]{\textbf{\Large #1}}
 		\bibliographystyle{linquiry2}
-		%\newcommand\fakesc[1]{{\addfontfeature{Scale=0.8} \MakeUppercase{#1}}}
-		\newcommand\fakesc[1]{\textsc{#1}}
 	}
 	\AtBeginDocument{
-		\setmathfont[Scale=1]{lmmath-regular.otf}
-		
-		%\setmainfont[BoldFont={Palatino Bold},SmallCapsFont={Palatino},SmallCapsFeatures={Letters=SmallCaps,Scale=0.7,OpticalSize=0,FakeBold=0.1}]{Palatino}
-		\setmainfont[BoldFont={TeX Gyre Pagella Bold}]{TeX Gyre Pagella}
-		\setmathrm{TeX Gyre Pagella}
+		\normalsize
+		\renewcommand{\columnseprulecolor}{\color{gray}}
+		\everymath{\displaystyle}
+	}
+}
 
-%		\setstretch{3.6}
-%		\resetfontscale
+\DeclareOption{verticalposter}{
+	\PassOptionsToClass{11pt}{article}
+	\AtEndOfClass{
+		\ifthenelse{\boolean{a1poster}}{
+			\RequirePackage[a1paper, horizontal, margin=1.7in]{geometry}
+			%\special{papersize=48in,34in}%36in
+		}{
+			\RequirePackage[papersize={36in,48in}, margin=1.7in]{geometry}
+			\special{papersize=36in,48in}%36in
+		}
+
+		\RequirePackage{multicol}
+
+		\headheight = 0.0 in
+		\headsep = 0.4 in
+		\parskip = 0.3in
+		\parindent = 0.0in
+
+		\renewcommand{\texttt}[1]{{\ttfont #1}}
+		\renewcommand{\tiny}{\fontsize{25}{30}\selectfont}
+		\renewcommand{\small}{\fontsize{33}{41}\selectfont}
+		\renewcommand{\normalsize}{\fontsize{37}{45}\selectfont}
+		\renewcommand{\large}{\fontsize{43}{67}\selectfont}
+		\renewcommand{\Large}{\fontsize{48}{72}\selectfont}
+		\newcommand{\HUGE}{\fontsize{72}{92}\selectfont}
+		\DeclareMathSizes{37}{37}{28}{23}
+		
+%			\renewcommand{\section}[1]{\textbf{\Large #1}}
+		\bibliographystyle{linquiry2}
+	}
+	\AtBeginDocument{
 		\normalsize
 		\renewcommand{\columnseprulecolor}{\color{gray}}
 		\everymath{\displaystyle}
@@ -510,11 +530,6 @@
 		\bibliographystyle{linquiry2}
 		%\newcommand\fakesc[1]{{\addfontfeature{Scale=0.8} \MakeUppercase{#1}}}
 		\newcommand\fakesc[1]{\textsc{#1}}
-	}
-	\AtBeginDocument{
-		%\setmainfont[BoldFont={Palatino Bold},SmallCapsFont={Palatino},SmallCapsFeatures={Letters=SmallCaps,Scale=0.7,OpticalSize=0,FakeBold=0.1}]{Palatino}
-		\setmainfont[BoldFont={TeX Gyre Pagella Bold}]{TeX Gyre Pagella}
-		\setmathrm{TeX Gyre Pagella}
 	}
 }
 
@@ -551,11 +566,10 @@
 		\newcommand\fakesc[1]{\scalebox{0.75}{\MakeUppercase{#1}}}
 		\RequirePackage{fancyhdr}
 		\RequirePackage{sectsty}
+
+		\setboolean{times}{true}
 	}
 	\AtBeginDocument{
-		\setmainfont[BoldFont={TeX Gyre Termes Bold}]{TeX Gyre Termes}
-		\setmathrm{TeX Gyre Termes}
-
 		\voffset = -0.2in
 		\headsep = 0.5in
 		\pagestyle{fancy}
@@ -594,11 +608,10 @@
 %		\RequirePackage{fancyhdr}
 %		\RequirePackage{sectsty}
 		\RequirePackage{titlesec}
+
+		\setboolean{times}{true}
 	}
 	\AtBeginDocument{
-		\setmainfont[BoldFont={TeX Gyre Termes Bold}]{TeX Gyre Termes}
-		\setmathrm{TeX Gyre Termes}
-
 %		\renewcommand{\thesection}{\arabic{section}}
 %		\allsectionsfont{\fontsize{12pt}{14pt}}
 %		\sectionfont{\textbf}
@@ -631,11 +644,10 @@
 		\newcommand\fakesc[1]{\scalebox{0.75}{\MakeUppercase{#1}}}
 		\RequirePackage{fancyhdr}
 		\RequirePackage{sectsty}
+
+		\setboolean{times}{true}
 	}
 	\AtBeginDocument{
-		\setmainfont[BoldFont={TeX Gyre Termes Bold}]{TeX Gyre Termes}
-		\setmathrm{TeX Gyre Termes}
-
 		\voffset = -9.7mm
 		\headsep = 25mm
 		\pagestyle{fancy}
@@ -685,11 +697,10 @@
 		% unused:
 		% \RequirePackage[labelfont=bf]{caption}
 		\setlength{\textheight}{8.75in}
+
+		\setboolean{times}{true}
 	}
 	\AtBeginDocument{
-		\setmainfont[BoldFont={TeX Gyre Termes Bold}]{TeX Gyre Termes}
-		\setmathrm{TeX Gyre Termes}
-
 		\setlength{\textheight}{9in}
 	
 		% The stylesheet (apparently) demands justified text *without* any
@@ -743,6 +754,20 @@
 
 \ProcessOptions
 
+\ifthenelse{\boolean{times}}
+{
+	\AtBeginDocument{
+		\setallmainfonts{TeX Gyre Termes}
+%		\RequirePackage{euler}
+%		\setmathrm{Times New Roman}
+%		\setmathrm[{Scale=3.5}]{Euler}
+	}
+}{
+	\AtBeginDocument{
+		\setallmainfonts[BoldFont={TeX Gyre Pagella Bold}]{TeX Gyre Pagella}
+	}
+}
+
 \ifthenelse{\boolean{loadBeamer}}
 {
 	\LoadClass{beamer}
@@ -790,7 +815,6 @@
 
 \RequirePackage{microtype}
 
-\RequirePackage{etoolbox}
 \AtEndPreamble{
 	\usepackage{mathspec}
 	\defaultfontfeatures{Mapping=tex-text}
@@ -853,7 +877,13 @@
 \usepackage{graphicx}
 %\DeclareGraphicsExtensions{.pdf}
 
-\RequirePackage{enumitem}
+\usepackage{enumitem}
+\AtBeginDocument{
+	\newlist{CV}{description}{2}
+	\setlist[CV]{labelwidth=87pt,leftmargin=94pt,style=sameline,font=\normalfont,itemsep=.3em}
+	\newlist{miniCV}{description}{2}
+	\setlist[miniCV]{labelwidth=30pt,leftmargin=37pt,style=sameline,font=\normalfont,itemsep=.3em}
+}
 
 % something for pandoc support, to make sure things aren't munged:
 \newcommand{\dummywrap}[1]{#1}
